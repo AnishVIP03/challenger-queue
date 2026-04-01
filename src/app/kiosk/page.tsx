@@ -122,7 +122,7 @@ export default function KioskPage() {
 
           <form onSubmit={handleSubmit}>
             {/* Service Grid */}
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5 mb-6">
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6 mb-6">
               {CATEGORIES.map((cat) => (
                 <button
                   key={cat}
@@ -145,6 +145,24 @@ export default function KioskPage() {
                   )}
                 </button>
               ))}
+
+              {/* QR Code Card — inline in grid, next to Others */}
+              <div className="flex flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-blue-200 bg-gradient-to-br from-blue-50 to-white p-3 text-center">
+                {mobileUrl ? (
+                  <QRCodeSVG
+                    value={mobileUrl}
+                    size={72}
+                    bgColor="#ffffff"
+                    fgColor="#002c9f"
+                    level="M"
+                  />
+                ) : (
+                  <div className="h-[72px] w-[72px] bg-gray-100 rounded animate-pulse" />
+                )}
+                <span className="text-[10px] font-semibold text-[#002c9f] leading-tight">
+                  📱 Scan to queue<br />from your phone
+                </span>
+              </div>
             </div>
 
             {/* Email Input */}
@@ -194,77 +212,46 @@ export default function KioskPage() {
           </form>
         </section>
 
-        {/* Right Panel — Ticket Display + QR Code */}
-        <aside className="flex-[1.3] flex flex-col gap-4">
-          {/* Ticket Card */}
-          <div className="flex-1 rounded-2xl bg-gradient-to-b from-blue-50 via-white to-gray-50 p-6 shadow-lg">
-            <div className="flex h-full flex-col justify-between rounded-2xl border border-dashed border-gray-200 bg-white/90 p-5">
-              <div>
-                <div className="flex items-center justify-between text-xs font-semibold uppercase tracking-widest text-[#002c9f]">
-                  <span>Digital Queue Ticket</span>
-                  <span>Challenger</span>
-                </div>
-
-                {!ticket ? (
-                  <p className="mt-4 text-sm text-gray-500">
-                    Your ticket will appear here after you check in at the kiosk.
-                  </p>
-                ) : (
-                  <div className="mt-3 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                    <div className="text-5xl font-extrabold text-gray-900 sm:text-6xl">
-                      {ticket.queue_number}
-                    </div>
-                    <div className="mt-2 text-sm font-medium text-gray-600">
-                      Service: {ticket.category}
-                    </div>
-                    <div className="mt-3 space-y-1 text-sm text-gray-500">
-                      <p>People ahead: {ticket.people_in_front}</p>
-                      <p className="text-xs">{ticket.email_message}</p>
-                    </div>
-                    <div className="mt-4 rounded-lg bg-blue-50 border border-blue-100 p-3 text-xs text-blue-700">
-                      Please watch the TV display for your number to be called.
-                      A chime will sound when it&apos;s your turn.
-                    </div>
-                  </div>
-                )}
+        {/* Right Panel — Ticket Display */}
+        <aside className="flex-[1.3] rounded-2xl bg-gradient-to-b from-blue-50 via-white to-gray-50 p-6 shadow-lg">
+          <div className="flex h-full flex-col justify-between rounded-2xl border border-dashed border-gray-200 bg-white/90 p-5">
+            <div>
+              <div className="flex items-center justify-between text-xs font-semibold uppercase tracking-widest text-[#002c9f]">
+                <span>Digital Queue Ticket</span>
+                <span>Challenger</span>
               </div>
 
-              <div className="mt-6 flex items-center justify-between">
-                <div className="h-2.5 w-2.5 rounded-full bg-red-500 shadow-[0_0_0_4px_rgba(229,57,53,0.2),0_0_0_8px_rgba(229,57,53,0.1)]" />
-                {ticket && (
-                  <div className="text-xs text-gray-400 text-right break-all max-w-[60%]">
-                    {ticket.email}
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* QR Code Card */}
-          <div className="rounded-2xl bg-white/90 p-5 shadow-lg backdrop-blur-sm">
-            <div className="flex items-center gap-4">
-              <div className="shrink-0 rounded-xl bg-white border border-gray-100 p-2 shadow-sm">
-                {mobileUrl ? (
-                  <QRCodeSVG
-                    value={mobileUrl}
-                    size={88}
-                    bgColor="#ffffff"
-                    fgColor="#002c9f"
-                    level="M"
-                  />
-                ) : (
-                  <div className="h-[88px] w-[88px] bg-gray-100 rounded animate-pulse" />
-                )}
-              </div>
-              <div className="min-w-0">
-                <div className="text-sm font-bold text-gray-900">
-                  📱 Queue from your phone
-                </div>
-                <p className="mt-1 text-xs text-gray-500 leading-relaxed">
-                  Scan this QR code to get a queue number on your phone — no
-                  email needed! Just select your service and tap.
+              {!ticket ? (
+                <p className="mt-4 text-sm text-gray-500">
+                  Your ticket will appear here after you check in at the kiosk.
                 </p>
-              </div>
+              ) : (
+                <div className="mt-3 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                  <div className="text-5xl font-extrabold text-gray-900 sm:text-6xl">
+                    {ticket.queue_number}
+                  </div>
+                  <div className="mt-2 text-sm font-medium text-gray-600">
+                    Service: {ticket.category}
+                  </div>
+                  <div className="mt-3 space-y-1 text-sm text-gray-500">
+                    <p>People ahead: {ticket.people_in_front}</p>
+                    <p className="text-xs">{ticket.email_message}</p>
+                  </div>
+                  <div className="mt-4 rounded-lg bg-blue-50 border border-blue-100 p-3 text-xs text-blue-700">
+                    Please watch the TV display for your number to be called.
+                    A chime will sound when it&apos;s your turn.
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div className="mt-6 flex items-center justify-between">
+              <div className="h-2.5 w-2.5 rounded-full bg-red-500 shadow-[0_0_0_4px_rgba(229,57,53,0.2),0_0_0_8px_rgba(229,57,53,0.1)]" />
+              {ticket && (
+                <div className="text-xs text-gray-400 text-right break-all max-w-[60%]">
+                  {ticket.email}
+                </div>
+              )}
             </div>
           </div>
         </aside>
