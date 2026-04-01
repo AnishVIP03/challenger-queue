@@ -147,19 +147,19 @@ export default function KioskPage() {
               ))}
 
               {/* QR Code Card — inline in grid, next to Others */}
-              <div className="flex flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-blue-200 bg-gradient-to-br from-blue-50 to-white p-3 text-center">
+              <div className="flex flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed border-blue-200 bg-gradient-to-br from-blue-50 to-white p-4 text-center">
                 {mobileUrl ? (
                   <QRCodeSVG
                     value={mobileUrl}
-                    size={72}
+                    size={100}
                     bgColor="#ffffff"
                     fgColor="#002c9f"
                     level="M"
                   />
                 ) : (
-                  <div className="h-[72px] w-[72px] bg-gray-100 rounded animate-pulse" />
+                  <div className="h-[100px] w-[100px] bg-gray-100 rounded animate-pulse" />
                 )}
-                <span className="text-[10px] font-semibold text-[#002c9f] leading-tight">
+                <span className="text-sm font-bold text-[#002c9f] leading-snug">
                   📱 Scan to queue<br />from your phone
                 </span>
               </div>
