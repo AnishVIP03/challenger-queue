@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { DisplayData } from "@/lib/types";
 
@@ -18,17 +18,21 @@ export default function StaffPage() {
   const [statusMessage, setStatusMessage] = useState(
     'No active ticket. Click "Call Next" to serve the next customer.'
   );
-  const counterRef = useRef(counterNo);
-  counterRef.current = counterNo;
 
-  const refreshOverview = useCallback(async () => {
+  // Use refs for values accessed in polling to avoid re-creating the interval
+  const counterRef = useRef(counterNo);
+  const ticketIdRef = useRef(currentTicketId);
+  counterRef.current = counterNo;
+  ticketIdRef.current = currentTicketId;
+
+  // Stable refresh function — no state dependencies, uses refs only
+  const refreshOverview = async () => {
     try {
       const res = await fetch("/api/display");
       if (!res.ok) return;
       const data: DisplayData = await res.json();
       setDisplayData(data);
 
-      // Sync current counter state from shared DB
       const selectedCounter = counterRef.current;
       const myServing = (data.serving || []).find(
         (t) => t.counter_no === selectedCounter
@@ -42,21 +46,22 @@ export default function StaffPage() {
           counter_no: myServing.counter_no ?? selectedCounter,
           email: "",
         });
-      } else if (currentTicketId !== null) {
-        // Ticket was completed/skipped by another source
+      } else if (ticketIdRef.current !== null) {
         setCurrentTicketId(null);
         setCurrentTicket(null);
       }
     } catch (err) {
       console.error("Failed to refresh:", err);
     }
-  }, [currentTicketId]);
+  };
 
+  // Single stable interval — never torn down/recreated
   useEffect(() => {
     refreshOverview();
     const interval = setInterval(refreshOverview, 4000);
     return () => clearInterval(interval);
-  }, [refreshOverview]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Re-sync when counter changes
   useEffect(() => {
@@ -64,7 +69,8 @@ export default function StaffPage() {
     setCurrentTicket(null);
     setStatusMessage('Counter changed. Click "Call Next" to serve.');
     refreshOverview();
-  }, [counterNo, refreshOverview]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [counterNo]);
 
   // Persist counter selection
   useEffect(() => {
@@ -96,7 +102,7 @@ export default function StaffPage() {
       if (data.message === "no waiting tickets") {
         setStatusMessage("No waiting tickets for this filter.");
         toast.info("No waiting tickets.");
-        await refreshOverview();
+        refreshOverview();
         return;
       }
 
@@ -114,7 +120,7 @@ export default function StaffPage() {
         } else {
           toast.error(data.message || data.error || "Error");
         }
-        await refreshOverview();
+        refreshOverview();
         return;
       }
 
@@ -127,7 +133,7 @@ export default function StaffPage() {
       });
       setStatusMessage("");
       toast.success(`Called ${data.queue_number}`);
-      await refreshOverview();
+      refreshOverview();
     } catch {
       toast.error("Network error.");
     }
@@ -153,7 +159,7 @@ export default function StaffPage() {
       setCurrentTicket(null);
       setStatusMessage("Ticket completed. Call next when ready.");
       toast.success("Ticket marked done.");
-      await refreshOverview();
+      refreshOverview();
     } catch {
       toast.error("Network error.");
     }
@@ -179,7 +185,7 @@ export default function StaffPage() {
       setCurrentTicket(null);
       setStatusMessage("Ticket skipped. Call next when ready.");
       toast.info("Ticket skipped.");
-      await refreshOverview();
+      refreshOverview();
     } catch {
       toast.error("Network error.");
     }
@@ -198,7 +204,7 @@ export default function StaffPage() {
         return;
       }
       toast.success("Ticket recalled to waiting queue.");
-      await refreshOverview();
+      refreshOverview();
     } catch {
       toast.error("Network error.");
     }
@@ -285,7 +291,7 @@ export default function StaffPage() {
           {/* Ticket Display */}
           <div className="rounded-2xl border border-blue-100 bg-gradient-to-br from-white to-blue-50/50 p-5 min-h-[120px] flex flex-col justify-center">
             {currentTicket ? (
-              <div className="animate-in fade-in duration-300">
+              <div>
                 <div className="text-[10px] font-semibold uppercase tracking-widest text-[#002c9f]">
                   Now serving
                 </div>
@@ -333,7 +339,8 @@ export default function StaffPage() {
           </div>
 
           <p className="mt-3 text-[10px] text-gray-400">
-            Customers are notified via TV display & chime when their number is called.
+            Customers are notified via TV display & chime when their number is
+            called.
           </p>
         </section>
 
