@@ -58,7 +58,7 @@ export default function StaffPage() {
   // Single stable interval — never torn down/recreated
   useEffect(() => {
     refreshOverview();
-    const interval = setInterval(refreshOverview, 4000);
+    const interval = setInterval(refreshOverview, 10000);
     return () => clearInterval(interval);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

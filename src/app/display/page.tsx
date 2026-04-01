@@ -62,7 +62,7 @@ export default function DisplayPage() {
     updateClock();
     refreshDisplay();
     const clockInterval = setInterval(updateClock, 1000);
-    const dataInterval = setInterval(refreshDisplay, 3000);
+    const dataInterval = setInterval(refreshDisplay, 5000);
     return () => {
       clearInterval(clockInterval);
       clearInterval(dataInterval);
